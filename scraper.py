@@ -5,10 +5,12 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+
 def get_hiddens(soup):
     kvps = [(kvp["name"], kvp["value"] if kvp.has_attr("value") else "")
             for kvp in soup.find_all("input", attrs={"type":"hidden"})]
     return dict(kvps)
+
 
 def scrape_html(username, password):
     session = requests.session()
@@ -39,9 +41,11 @@ def scrape_html(username, password):
     resp5 = session.post(url4, data=kvps4)
     return resp5.text
 
+
 def save_file(filename, content):
     with open(filename, "w", encoding="utf-8") as text_file:
         text_file.write(content)
+
 
 def scrape_buddies(filename):
     df = pd.DataFrame()
@@ -57,7 +61,7 @@ def scrape_buddies(filename):
         df["aankomstdatum"] = [item.contents[1] for item in soup.select("div.attnboxOL > span.aankomstdatum")]
         df["vertrekdatum"] = [item.contents[1] for item in soup.select("div.attnboxOL > span.vertrekdatum")]
         df["programma"] = [item.contents[0] for item in soup.select("div.attnboxOL > span.programma")]
-        df["gevraagde_faculteit"] = [item.contents[1] for item in soup.select("div.attnboxOL > span.gevraagde_faculteit")]
+        # df["gevraagde_faculteit"] = [item.contents[1] for item in soup.select("div.attnboxOL > span.gevraagde_faculteit")]
         df["interesses"] = [item.contents[1] for item in soup.select("div.attnboxOL > span.interesses")]
 
     if len(df.index) > 0:
@@ -69,16 +73,19 @@ def scrape_buddies(filename):
         df["Interest-Sports"] = df.interesses.str.contains('Sports')
         df["Interest-Travelling"] = df.interesses.str.contains('Travelling')
 
+    df.drop('interesses', axis=1, inplace=True)
     return df
+
 
 def main():
     today = datetime.today().strftime('%Y%m%d')
     username = os.environ['KULUSER']
     password = os.environ['KULPASS']
     html = scrape_html(username, password)
-    save_file(today + ".html", html)
-    df = scrape_buddies(today + ".html")
-    df.to_csv(today + '.csv', index=False, encoding='utf-8')
+    save_file(f"data/{today}.html", html)
+    df = scrape_buddies(f"data/{today}.html")
+    df.to_csv(f'data/{today}.csv', index=False, encoding='utf-8')
+
 
 if __name__ == "__main__":
     main()

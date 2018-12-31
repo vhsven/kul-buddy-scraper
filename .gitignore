@@ -1,3 +1,6 @@
-.vscode
+.vscode/
+.mypy_cache/
+data/
 *.csv
+*.xlsx
 *.html
