@@ -9,7 +9,7 @@ def parse_csv(csv):
     date = datetime.datetime.strptime(filename, '%Y%m%d').date()
     df = pd.read_csv(csv, sep=',', encoding='utf-8')
     df.drop_duplicates(keep='first', inplace=True)
-    df.drop(['gevraagde_faculteit', 'interesses'], 
+    df.drop(['gevraagde_faculteit', 'interesses'],
             axis=1, inplace=True, errors='ignore')
     return (date, df)
 

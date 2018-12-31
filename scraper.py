@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 
 def get_hiddens(soup):
     kvps = [(kvp["name"], kvp["value"] if kvp.has_attr("value") else "")
-            for kvp in soup.find_all("input", attrs={"type":"hidden"})]
+            for kvp in soup.find_all("input", attrs={"type": "hidden"})]
     return dict(kvps)
 
 
@@ -51,27 +51,28 @@ def scrape_buddies(filename):
     df = pd.DataFrame()
 
     with open(filename, encoding='utf-8') as fp:
-        soup = BeautifulSoup(fp, 'html.parser')
-        df["voornaam"] = [item.contents[1] for item in soup.select("div.attnboxOL > span.voornaam")]
-        df["geboortedatum"] = [item.contents[1] for item in soup.select("div.attnboxOL > span.geboortedatum")]
-        df["geslacht"] = [item.contents[0] for item in soup.select("div.attnboxOL > span.geslacht")]
-        df["entourage"] = [item.contents[0] for item in soup.select("div.attnboxOL > span.entourage")]
-        df["land"] = [item.contents[1] for item in soup.select("div.attnboxOL > span.land")]
-        df["faculteit"] = [item.contents[0] for item in soup.select("div.attnboxOL > span.faculteit")]
-        df["aankomstdatum"] = [item.contents[1] for item in soup.select("div.attnboxOL > span.aankomstdatum")]
-        df["vertrekdatum"] = [item.contents[1] for item in soup.select("div.attnboxOL > span.vertrekdatum")]
-        df["programma"] = [item.contents[0] for item in soup.select("div.attnboxOL > span.programma")]
-        # df["gevraagde_faculteit"] = [item.contents[1] for item in soup.select("div.attnboxOL > span.gevraagde_faculteit")]
-        df["interesses"] = [item.contents[1] for item in soup.select("div.attnboxOL > span.interesses")]
+        pre = "div.attnboxOL > span."
+        bs = BeautifulSoup(fp, 'html.parser')
+        df["voornaam"] = [x.contents[1] for x in bs.select(f"{pre}voornaam")]
+        df["geboortedatum"] = [x.contents[1] for x in bs.select(f"{pre}geboortedatum")]
+        df["geslacht"] = [x.contents[0] for x in bs.select(f"{pre}geslacht")]
+        df["entourage"] = [x.contents[0] for x in bs.select(f"{pre}entourage")]
+        df["land"] = [x.contents[1] for x in bs.select(f"{pre}land")]
+        df["faculteit"] = [x.contents[0] for x in bs.select(f"{pre}faculteit")]
+        df["aankomstdatum"] = [x.contents[1] for x in bs.select(f"{pre}aankomstdatum")]
+        df["vertrekdatum"] = [x.contents[1] for x in bs.select(f"{pre}vertrekdatum")]
+        df["programma"] = [x.contents[0] for x in bs.select(f"{pre}programma")]
+        df["interesses"] = [x.contents[1] for x in bs.select(f"{pre}interesses")]
 
     if len(df.index) > 0:
-        df["Interest-ArtCulture"] = df.interesses.str.contains('Art & Culture')
-        df["Interest-Cinema"] = df.interesses.str.contains('Cinema')
-        df["Interest-ClassicMusic"] = df.interesses.str.contains('Classic Music')
-        df["Interest-Music"] = df.interesses.str.contains('Music \(Pop, rock, ...\)')
-        df["Interest-Parties"] = df.interesses.str.contains('Parties')
-        df["Interest-Sports"] = df.interesses.str.contains('Sports')
-        df["Interest-Travelling"] = df.interesses.str.contains('Travelling')
+        intr = df.interesses
+        df["Interest-ArtCulture"] = intr.str.contains('Art & Culture')
+        df["Interest-Cinema"] = intr.str.contains('Cinema')
+        df["Interest-ClassicMusic"] = intr.str.contains('Classic Music')
+        df["Interest-Music"] = intr.str.contains('Music \(Pop, rock, ...\)')
+        df["Interest-Parties"] = intr.str.contains('Parties')
+        df["Interest-Sports"] = intr.str.contains('Sports')
+        df["Interest-Travelling"] = intr.str.contains('Travelling')
 
     df.drop('interesses', axis=1, inplace=True)
     return df
